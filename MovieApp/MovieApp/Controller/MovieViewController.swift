@@ -13,57 +13,77 @@ class MovieViewController: UIViewController {
     
     var movieView:MovieView {return self.view as! MovieView}
     var delegate:CellUpdate?
+    var viewModel:MovieViewModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = MovieView()
         
+        binding()
+        setActions()
     }
     
-    func setMovie(movie:Movie){
-        movieView.movie = movie
-        movieView.movieDescription.text = movie.overview
-        movieView.movieName.text = movie.title
-        movieView.movieReleaseDate.text = movie.releaseDate
+    func setActions(){
+        movieView.favoriteButton.addTarget(self, action: #selector(favMovie), for: .touchDown)
+    }
+    
+    func binding(){
+        guard let viewModel = viewModel else {return}
+
         
-        let imageURL:URL?
-        if let path = movie.backdropPath {
-            imageURL = ImageEndpoint.image(width:780, path: path).completeURL
-        }else{
-            imageURL = nil
+        viewModel.title.bind { (title) in
+            self.movieView.movieName.text = title
         }
-        movieView.poster.kf.indicatorType = .activity
-        movieView.poster.kf.setImage(with: imageURL)
         
-        getGenres(movie:movie)
+        viewModel.description.bind { (description) in
+            self.movieView.movieDescription.text = description
+        }
         
-        refreshFavorite(movie:movie)
+        viewModel.releaseDate.bind { (date) in
+            self.movieView.movieReleaseDate.text = date
+        }
+        viewModel.url.bind { (url) in
+            self.movieView.poster.kf.indicatorType = .activity
+            self.movieView.poster.kf.setImage(with: url)
+        }
         
-    }
-    
-    func getGenres(movie:Movie){
-        guard let movieIds:[Int] = movie.genreIDs else {return}
-        var myGenres:[String] = []
-        for genre in DAO.shared.genreList{
-            for id in movieIds{
-                if id == genre.id{
-                    guard let name = genre.name else {return}
-                    myGenres.append(name)
-                }
+        viewModel.genres.bind { (genres) in
+            self.movieView.genres.text = genres
+        }
+        
+        viewModel.isFavorite.bind { (isFavorited) in
+            if !isFavorited{
+            self.movieView.favoriteButton.setImage(UIImage(imageLiteralResourceName: "favorite_empty_icon"), for: .normal)
+                viewModel.movie?.isFavorite = false
+            }else{
+                self.movieView.favoriteButton.setImage(UIImage(imageLiteralResourceName: "favorite_full_icon"), for: .normal)
+                
             }
         }
-        movieView.genres.text = myGenres.joined(separator: "    ")
+        
     }
     
-    func refreshFavorite(movie:Movie){
-        if !movie.isFavorite! {
-            movieView.favoriteButton.setImage(UIImage(imageLiteralResourceName: "favorite_empty_icon"), for: .normal)
+    @objc private func favMovie(){
+        guard let viewModel = self.viewModel else {return}
+        if viewModel.isFavorite.value{
+            viewModel.isFavorite.value = false
+            viewModel.movie?.isFavorite = false
+            for movieIndex in 0...DAO.shared.favorites.count{
+                if DAO.shared.favorites[movieIndex].id == viewModel.movie.id{
+                    DAO.shared.favorites.remove(at: movieIndex)
+                    break
+                }
+            }
+  
         }else{
-            movieView.favoriteButton.setImage(UIImage(imageLiteralResourceName: "favorite_full_icon"), for: .normal)
+            viewModel.isFavorite.value = true
+            viewModel.movie?.isFavorite = true
+            DAO.shared.favorites.append(viewModel.movie)
         }
+        
+        delegate?.updateList()
     }
-    
-    
+
 }
 
 protocol CellUpdate{

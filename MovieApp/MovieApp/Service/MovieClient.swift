@@ -9,6 +9,7 @@
 import Alamofire
 
 class MovieClient {
+    
     @discardableResult
     private static func performRequest(route: MovieEndpoint, completion: @escaping (DataResponse<Any, AFError>?) -> Void) -> DataRequest {
         return AF.request(route).validate().responseJSON { (response: DataResponse<Any, AFError>?) in
@@ -16,6 +17,8 @@ class MovieClient {
             completion(response)
         }
     }
+    
+    
     
     static func getPopular(page: Int, completion: @escaping ([Movie]?, Error?) -> Void) {
         performRequest(route: .popular(page: page)) { response in

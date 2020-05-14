@@ -13,7 +13,6 @@ class MovieView: UIView {
     //MARK:- Constraints
     
     var myGenres:[String] = []
-    var movie:Movie?
     var delegate:CellUpdate?
     
     lazy var poster:UIImageView = {
@@ -78,7 +77,6 @@ class MovieView: UIView {
         button.contentMode = .center
         button.contentVerticalAlignment = .fill
         button.contentHorizontalAlignment = .fill
-        button.addTarget(self, action: #selector(favoriteMovie), for: .touchDown)
         return button
     }()
     
@@ -128,38 +126,6 @@ class MovieView: UIView {
     }
     
     
-    @objc private func favoriteMovie(){
-        guard let movie = movie else {return}
-        let myId = movie.id
-        if let movie = self.movie{
-            if movie.isFavorite! {
-                movie.isFavorite = false
-                for movieIndex in 0...DAO.shared.favorites.count{
-                    if DAO.shared.favorites[movieIndex].id == myId{
-                        DAO.shared.favorites.remove(at: movieIndex)
-                        break
-                    }
-                }
-                self.favoriteButton.setImage(UIImage(imageLiteralResourceName: "favorite_gray_icon"), for: .normal)
-            }else{
-                movie.isFavorite = true
-                var alreadyFavorite = false
-                for movieFav in DAO.shared.favorites{
-                    if movie.id == movieFav.id{
-                        alreadyFavorite = true
-                        break
-                    }
-                }
-                if alreadyFavorite != true{
-                    movie.isFavorite = true
-                    DAO.shared.favorites.append(movie)
-                    
-                }
-                self.favoriteButton.setImage(UIImage(imageLiteralResourceName: "favorite_full_icon"), for: .normal)
-            }
-        }
-        delegate?.updateList()
-    }
     
     
     

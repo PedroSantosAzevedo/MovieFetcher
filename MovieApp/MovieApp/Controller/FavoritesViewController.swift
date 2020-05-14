@@ -100,9 +100,9 @@ extension FavoritesViewController:UITableViewDelegate,UITableViewDataSource{
             if isSearching{movie = DAO.shared.filteredFavorites[indexPath.row]}
             movie.isFavorite = true
             let movieVc = MovieViewController()
-            movieVc.setMovie(movie: movie)
-            movieVc.movieView.delegate = self
-            //            movieVc.delegate = self.listView
+            movieVc.delegate = self
+            let movieViewModel = MovieViewModel(movie: movie)
+            movieVc.viewModel = movieViewModel
             self.present(movieVc, animated: true)
         }else{
             self.searchFilter = DAO.shared.filters[indexPath.row]

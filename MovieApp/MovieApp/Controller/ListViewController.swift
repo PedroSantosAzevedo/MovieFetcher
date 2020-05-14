@@ -93,8 +93,9 @@ extension ListViewController:UICollectionViewDelegate, UICollectionViewDataSourc
         var movie = DAO.shared.movies[indexPath.row]
         if isSearching{movie = DAO.shared.filtered[indexPath.row]}
         let movieVc = MovieViewController()
-        movieVc.movieView.delegate = self
-        movieVc.setMovie(movie: movie)
+        movieVc.delegate = self
+        let movieViewModel = MovieViewModel(movie: movie)
+        movieVc.viewModel = movieViewModel
         self.present(movieVc, animated: true)
         
     }
