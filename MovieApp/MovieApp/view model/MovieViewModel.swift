@@ -63,5 +63,24 @@ class MovieViewModel {
         }
         genres.value = myGenres.joined(separator: "    ")
     }
+    
+    func favMovie(){
+    
+        if self.isFavorite.value{
+              self.isFavorite.value = false
+              self.movie?.isFavorite = false
+              for movieIndex in 0...DAO.shared.favorites.count{
+                  if DAO.shared.favorites[movieIndex].id == self.movie.id{
+                      DAO.shared.favorites.remove(at: movieIndex)
+                      break
+                  }
+              }
+          }else{
+              self.isFavorite.value = true
+              self.movie?.isFavorite = true
+              DAO.shared.favorites.append(movie)
+          }
+      }
+
    
 }

@@ -18,7 +18,6 @@ class MovieViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view = MovieView()
-        
         binding()
         setActions()
     }
@@ -65,22 +64,7 @@ class MovieViewController: UIViewController {
     
     @objc private func favMovie(){
         guard let viewModel = self.viewModel else {return}
-        if viewModel.isFavorite.value{
-            viewModel.isFavorite.value = false
-            viewModel.movie?.isFavorite = false
-            for movieIndex in 0...DAO.shared.favorites.count{
-                if DAO.shared.favorites[movieIndex].id == viewModel.movie.id{
-                    DAO.shared.favorites.remove(at: movieIndex)
-                    break
-                }
-            }
-  
-        }else{
-            viewModel.isFavorite.value = true
-            viewModel.movie?.isFavorite = true
-            DAO.shared.favorites.append(viewModel.movie)
-        }
-        
+        viewModel.favMovie()
         delegate?.updateList()
     }
 
